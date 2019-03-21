@@ -5,7 +5,9 @@
 
 
 ### 启动方法
-http_run_exe.exe -exe="c:\a.exe|d:\b.exe" -port=8081
+http_run_exe.exe -exe="c:/a.exe|d:/b.exe" -port=8081
+
+`多个程序使用|隔开，需要将\换成/`
 
 ### 命令调用方法
 
