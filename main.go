@@ -53,6 +53,11 @@ func main() {
 	_exe := strings.Split(exe, "|")
 	for i := 0; i < len(_exe); i++ {
 		_exe[i] = path.Clean(_exe[i])
+		_, err := os.Stat(_exe[i])
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 		exes[path.Base(_exe[i])] = _exe[i]
 	}
 	fmt.Println(port, exes)
