@@ -84,8 +84,8 @@ func web(w http.ResponseWriter, r *http.Request) {
 	exe := r.URL.Query().Get("exe")
 	fmt.Println(status, exe)
 	if _, ok := exes[exe]; !ok {
-		fmt.Println("程序不存在")
-		msg.Error = "程序不存在"
+		fmt.Println(exe, "程序不存在")
+		msg.Error = fmt.Sprintf("%s程序不存在", exe)
 		jsonData, _ := json.Marshal(msg)
 		w.Write(jsonData)
 		return
