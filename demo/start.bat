@@ -1,0 +1,1 @@
+start /min D:/start/startup.bat

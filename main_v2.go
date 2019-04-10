@@ -29,6 +29,9 @@ func runExe(exeAdress string) (err2 error, msg string) {
 }
 
 func closeExe(exeAdress string) (err2 error, msg string) {
+	if strings.Index(exeAdress, "video") == 0 {
+		exeAdress = "PotPlayerMini64.exe"
+	}
 	cmd := exec.Command("taskkill", "/f", "/t", "/im", exeAdress)
 	err := cmd.Run()
 	if err != nil {
@@ -60,6 +63,7 @@ func main() {
 		}
 		exes[path.Base(_exe[i])] = _exe[i]
 	}
+	exes["PotPlayerMini64.exe"] = "PotPlayerMini64.exe"
 	fmt.Println(port, exes)
 	startServer()
 }

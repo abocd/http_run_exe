@@ -1,0 +1,1 @@
+main_v2.exe -exe="d:/xiaohu/xiaohu.exe|D:/跳舞机独立四屏/DanceKinect.exe|D:/HumanClass/MyProject6.exe|D:/eihoo不同步/start/video.bat" -port=8081

@@ -1,0 +1,1 @@
+"C:\Program Files\DAUM\PotPlayer\PotPlayerMini64.exe" d:/eihoo_video/2.mp4
