@@ -42,10 +42,10 @@ func closeExe(exeAdress string) (err2 error, msg string) {
 
 var port int
 var exe string
-var exes map[string]string
+var exeMaps map[string]string
 
 func main() {
-	exes = make(map[string]string, 3)
+	exeMaps = make(map[string]string, 3)
 	//go run "d:\go\src\github.com\abocd\test\exec.go" -exe="D:/unity/xiaohu/build/xiaohu/xiaohu.exe|e:/xiaohu/xiaohu2.exe" -port=8081
 	flag.IntVar(&port, "port", 8080, "监听的端口号")
 	flag.StringVar(&exe, "exe", "D:/unity/xiaohu/build/xiaohu/xiaohu.exe", "监听的程序，多个用|隔开")
@@ -58,9 +58,9 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-		exes[path.Base(_exe[i])] = _exe[i]
+		exeMaps[path.Base(_exe[i])] = _exe[i]
 	}
-	fmt.Println(port, exes)
+	fmt.Println(port, exeMaps)
 	startServer()
 }
 
@@ -83,18 +83,18 @@ func web(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
 	exe := r.URL.Query().Get("exe")
 	fmt.Println(status, exe)
-	if _, ok := exes[exe]; !ok {
+	if _, ok := exeMaps[exe]; !ok {
 		fmt.Println(exe, "程序不存在")
 		msg.Error = fmt.Sprintf("%s程序不存在", exe)
 		jsonData, _ := json.Marshal(msg)
 		w.Write(jsonData)
 		return
 	}
-	fmt.Println(exes[exe])
+	fmt.Println(exeMaps[exe])
 	var resultStatus error
 	var resultMsg string
 	if status == "open" {
-		resultStatus, resultMsg = runExe(exes[exe])
+		resultStatus, resultMsg = runExe(exeMaps[exe])
 	} else {
 		resultStatus, resultMsg = closeExe(exe)
 	}

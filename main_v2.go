@@ -1,6 +1,9 @@
 package main
 
-import "os/exec"
+import (
+	"io/ioutil"
+	"os/exec"
+)
 import (
 	"encoding/json"
 	// "errors"
@@ -43,12 +46,33 @@ func closeExe(exeAdress string) (err2 error, msg string) {
 	}
 }
 
+/**
+ *  列表程序
+ */
+func listExe() (err2 error, msg map[string]Exe) {
+	exeList := make(map[string]Exe)
+	for name, exe := range ExeList {
+		if exe.Show {
+			exeList[name] = exe
+		}
+	}
+	return nil, exeList
+}
+
 var port int
 var exe string
-var exes map[string]string
+
+type Exe struct {
+	Name string
+	Path string
+	Ico  string
+	Show bool
+}
+
+var ExeList map[string]Exe
 
 func main() {
-	exes = make(map[string]string, 3)
+	ExeList = make(map[string]Exe, 3)
 	//go run "d:\go\src\github.com\abocd\test\exec.go" -exe="D:/unity/xiaohu/build/xiaohu/xiaohu.exe|e:/xiaohu/xiaohu2.exe" -port=8081
 	flag.IntVar(&port, "port", 8080, "监听的端口号")
 	flag.StringVar(&exe, "exe", "D:/unity/xiaohu/build/xiaohu/xiaohu.exe", "监听的程序，多个用|隔开")
@@ -61,24 +85,42 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-		exes[path.Base(_exe[i])] = _exe[i]
+
+		ExeList[path.Base(_exe[i])] = Exe{path.Base(_exe[i]), _exe[i], fmt.Sprintf("%s.jpg", _exe[i]), true}
 	}
-	exes["PotPlayerMini64.exe"] = "PotPlayerMini64.exe"
-	fmt.Println(port, exes)
+	ExeList["PotPlayerMini64.exe"] = Exe{"PotPlayerMini64.exe", "PotPlayerMini64.exe", "", false}
+	fmt.Println(port, ExeList)
 	startServer()
 }
 
 func startServer() {
 	http.HandleFunc("/", web)
+	fmt.Println("服务器启动成功")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		panic(err)
 	}
 }
 
+type resultMsgType interface{}
+
 type Msg struct {
-	Error   string
-	Success string
+	Error   resultMsgType
+	Success resultMsgType
+}
+
+func ico(exeAdress string, w http.ResponseWriter, r *http.Request) {
+	icoPath := ExeList[exeAdress].Ico
+	icoPath = path.Clean(icoPath)
+	_, err := os.Stat(icoPath)
+	if err != nil {
+		return
+	}
+	data, err := ioutil.ReadFile(icoPath)
+	if err != nil {
+		return
+	}
+	w.Write(data)
 }
 
 func web(w http.ResponseWriter, r *http.Request) {
@@ -87,21 +129,31 @@ func web(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
 	// exe := r.URL.Query().Get("exe")
 	exe := r.PostFormValue("name")
-	fmt.Println(status, exe)
-	if _, ok := exes[exe]; !ok {
-		fmt.Println(exe, "程序不存在")
-		msg.Error = fmt.Sprintf("%s程序不存在", exe)
-		jsonData, _ := json.Marshal(msg)
-		w.Write(jsonData)
-		return
+	if exe == "" {
+		exe = r.URL.Query().Get("name")
 	}
-	fmt.Println(exes[exe])
+	fmt.Println(status, exe)
+	if r.URL.Path != "/controller/list" {
+		if _, ok := ExeList[exe]; !ok {
+			fmt.Println(exe, "程序不存在")
+			msg.Error = fmt.Sprintf("%s程序不存在", exe)
+			jsonData, _ := json.Marshal(msg)
+			w.Write(jsonData)
+			return
+		}
+	}
+	fmt.Println(ExeList[exe])
 	var resultStatus error
-	var resultMsg string
+	var resultMsg resultMsgType
 	if r.URL.Path == "/controller/openapp" {
-		resultStatus, resultMsg = runExe(exes[exe])
-	} else {
+		resultStatus, resultMsg = runExe(ExeList[exe].Path)
+	} else if r.URL.Path == "/controller/closeapp" {
 		resultStatus, resultMsg = closeExe(exe)
+	} else if r.URL.Path == "/ico" {
+		ico(exe, w, r)
+		return
+	} else {
+		resultStatus, resultMsg = listExe()
 	}
 	if resultStatus == nil {
 		msg.Success = resultMsg
