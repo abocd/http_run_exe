@@ -61,6 +61,7 @@ func listExe() (err2 error, msg map[string]Exe) {
 
 var port int
 var exe string
+var name string
 
 type Exe struct {
 	Name string
@@ -72,12 +73,20 @@ type Exe struct {
 var ExeList map[string]Exe
 
 func main() {
+	var videoPlayer string
 	ExeList = make(map[string]Exe, 3)
 	//go run "d:\go\src\github.com\abocd\test\exec.go" -exe="D:/unity/xiaohu/build/xiaohu/xiaohu.exe|e:/xiaohu/xiaohu2.exe" -port=8081
 	flag.IntVar(&port, "port", 8080, "监听的端口号")
 	flag.StringVar(&exe, "exe", "D:/unity/xiaohu/build/xiaohu/xiaohu.exe", "监听的程序，多个用|隔开")
+	flag.StringVar(&name, "name", "语音精灵", "和程序配套的对应的程序名称，多个用|隔开")
+	flag.StringVar(&videoPlayer, "player", "PotPlayerMini64.exe", "视频播放器名称")
 	flag.Parse()
 	_exe := strings.Split(exe, "|")
+	_name := strings.Split(name, "|")
+	if len(_exe) != len(_name) {
+		fmt.Println("exe和name参数数量不一致")
+		return
+	}
 	for i := 0; i < len(_exe); i++ {
 		_exe[i] = path.Clean(_exe[i])
 		_, err := os.Stat(_exe[i])
@@ -85,10 +94,13 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-
-		ExeList[path.Base(_exe[i])] = Exe{path.Base(_exe[i]), _exe[i], fmt.Sprintf("%s.jpg", _exe[i]), true}
+		var name = path.Base(_exe[i])
+		if i < len(_name) {
+			name = _name[i]
+		}
+		ExeList[path.Base(_exe[i])] = Exe{name, _exe[i], fmt.Sprintf("%s.jpg", _exe[i]), true}
 	}
-	ExeList["PotPlayerMini64.exe"] = Exe{"PotPlayerMini64.exe", "PotPlayerMini64.exe", "", false}
+	ExeList[videoPlayer] = Exe{videoPlayer, videoPlayer, "", false}
 	fmt.Println(port, ExeList)
 	startServer()
 }
