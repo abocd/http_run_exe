@@ -125,6 +125,7 @@ func ico(exeAdress string, w http.ResponseWriter, r *http.Request) {
 	icoPath := ExeList[exeAdress].Ico
 	icoPath = path.Clean(icoPath)
 	_, err := os.Stat(icoPath)
+	fmt.Println("找图标 ", exeAdress, icoPath)
 	if err != nil {
 		return
 	}
