@@ -9,7 +9,8 @@ import (
 	// "errors"
 	"flag"
 	"fmt"
-	"log"
+
+	// "log"
 	"net/http"
 	"os"
 	"path"
@@ -22,26 +23,28 @@ func runExe(exeAdress string) (err2 error, msg string) {
 	cmd := exec.Command("cmd.exe", "/c", "start "+exeAdress)
 
 	err := cmd.Run()
+	fmt.Println("正在启动程序", exeAdress)
 	if err != nil {
-		log.Println("启动失败:", err)
+		fmt.Println("启动失败:", err)
 		return err, "启动失败"
 	} else {
-		log.Println("启动成功!")
+		fmt.Println("启动成功!")
 		return nil, "启动成功"
 	}
 }
 
 func closeExe(exeAdress string) (err2 error, msg string) {
 	if strings.Index(exeAdress, "video") == 0 {
-		exeAdress = "PotPlayerMini64.exe"
+		exeAdress = videoPlayer
 	}
 	cmd := exec.Command("taskkill", "/f", "/t", "/im", exeAdress)
 	err := cmd.Run()
+	fmt.Println("正在结束程序", exeAdress)
 	if err != nil {
-		log.Println("结束失败:", err)
+		fmt.Println("结束失败:", err)
 		return err, "结束失败"
 	} else {
-		log.Println("结束成功!")
+		fmt.Println("结束成功!")
 		return nil, "结束成功"
 	}
 }
@@ -62,6 +65,7 @@ func listExe() (err2 error, msg map[string]Exe) {
 var port int
 var exe string
 var name string
+var videoPlayer string
 
 type Exe struct {
 	Name string
@@ -73,7 +77,7 @@ type Exe struct {
 var ExeList map[string]Exe
 
 func main() {
-	var videoPlayer string
+
 	ExeList = make(map[string]Exe, 3)
 	//go run "d:\go\src\github.com\abocd\test\exec.go" -exe="D:/unity/xiaohu/build/xiaohu/xiaohu.exe|e:/xiaohu/xiaohu2.exe" -port=8081
 	flag.IntVar(&port, "port", 8080, "监听的端口号")
@@ -125,7 +129,7 @@ func ico(exeAdress string, w http.ResponseWriter, r *http.Request) {
 	icoPath := ExeList[exeAdress].Ico
 	icoPath = path.Clean(icoPath)
 	_, err := os.Stat(icoPath)
-	fmt.Println("找图标 ", exeAdress, icoPath)
+	//fmt.Println("找图标 ", exeAdress, icoPath)
 	if err != nil {
 		return
 	}
@@ -139,13 +143,13 @@ func ico(exeAdress string, w http.ResponseWriter, r *http.Request) {
 func web(w http.ResponseWriter, r *http.Request) {
 	var msg Msg
 	fmt.Println(r.RequestURI, r.URL.Path)
-	status := r.URL.Query().Get("status")
+	//status := r.URL.Query().Get("status")
 	// exe := r.URL.Query().Get("exe")
 	exe := r.PostFormValue("exe")
 	if exe == "" {
 		exe = r.URL.Query().Get("exe")
 	}
-	fmt.Println(status, exe)
+	//fmt.Println(status, exe)
 	if r.URL.Path != "/listapp" {
 		if _, ok := ExeList[exe]; !ok {
 			fmt.Println(exe, "程序不存在")
@@ -155,7 +159,7 @@ func web(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fmt.Println(ExeList[exe])
+	//fmt.Println(ExeList[exe])
 	var resultStatus error
 	var resultMsg resultMsgType
 	if r.URL.Path == "/controller/openapp" {
