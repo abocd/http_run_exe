@@ -1,1 +1,1 @@
-http_run_exe.exe -exe="D:/unity/xiaohu/build/xiaohu/xiaohu.exe|D:/跳舞机独立四屏/DanceKinect.exe|D:/HumanClass/MyProject6.exe|D:/go/src/github.com/abocd/http_run_exe/demo/video.bat" -name="语音精灵|舞动青春|人体知识|视频播放" -port=8081 -player="PotPlayerMini.exe"
+http_run_exe.exe -exe="d:/unity/xiaohu/build/xiaohu/xiaohu.exe|D:/eihoo/DanceKinect.exe|D:/eihoo/MyProject6.exe|d:/eihoo/start/video.bat" -player="PotPlayerMini.exe" -name="语音精灵|舞动青春|人体知识|绵阳中学" -port=8081

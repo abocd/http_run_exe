@@ -37,6 +37,7 @@ func closeExe(exeAdress string) (err2 error, msg string) {
 	if strings.Index(exeAdress, "video") == 0 {
 		exeAdress = videoPlayer
 	}
+
 	cmd := exec.Command("taskkill", "/f", "/t", "/im", exeAdress)
 	err := cmd.Run()
 	fmt.Println("正在结束程序", exeAdress)
