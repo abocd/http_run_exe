@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
 	"os/exec"
+	"runtime"
 )
 import (
 	"encoding/json"
@@ -33,13 +35,32 @@ func runExe(exeAdress string) (err2 error, msg string) {
 	}
 }
 
+func osType() string {
+	osname := strings.ToLower(runtime.GOOS)
+	if strings.IndexAny(osname, "window") >= 0 {
+		return "windows"
+	} else if strings.IndexAny(osname, "linux") >= 0 {
+		return "linux"
+	}
+	return osname
+}
+
 func closeExe(exeAdress string) (err2 error, msg string) {
 	if strings.Index(exeAdress, "video") == 0 {
 		exeAdress = videoPlayer
 	}
-
-	cmd := exec.Command("taskkill", "/f", "/t", "/im", exeAdress)
+	var cmd *exec.Cmd
+	if osType() == "windows" {
+		cmd = exec.Command("taskkill", "/f", "/t", "/im", exeAdress)
+	} else if osType() == "linux" {
+		cmd = exec.Command("pkill", exeAdress)
+	} else {
+		err := errors.New("不支持的系统")
+		fmt.Println("结束失败:", err)
+		return err, "结束失败，不支持的系统"
+	}
 	err := cmd.Run()
+
 	fmt.Println("正在结束程序", exeAdress)
 	if err != nil {
 		fmt.Println("结束失败:", err)
@@ -78,10 +99,10 @@ type Exe struct {
 var ExeList map[string]Exe
 
 func main() {
-
+	fmt.Println(runtime.GOOS)
 	ExeList = make(map[string]Exe, 3)
 	//go run "d:\go\src\github.com\abocd\test\exec.go" -exe="D:/unity/xiaohu/build/xiaohu/xiaohu.exe|e:/xiaohu/xiaohu2.exe" -port=8081
-	flag.IntVar(&port, "port", 8080, "监听的端口号")
+	flag.IntVar(&port, "port", 8081, "监听的端口号")
 	flag.StringVar(&exe, "exe", "D:/unity/xiaohu/build/xiaohu/xiaohu.exe", "监听的程序，多个用|隔开")
 	flag.StringVar(&name, "name", "语音精灵", "和程序配套的对应的程序名称，多个用|隔开")
 	flag.StringVar(&videoPlayer, "player", "PotPlayerMini64.exe", "视频播放器名称")
