@@ -1,8 +1,9 @@
 ﻿DAUMPLAYLIST
-playname=d:/eihoo_video/2.mp4
-playtime=7689
+playname=D:\weixin\002.mp4
 topindex=0
 saveplaypos=0
-1*file*d:/eihoo_video/2.mp4
+1*file*D:\weixin\001.mp4
 1*played*0
-1*duration2*195280
+2*file*D:\weixin\002.mp4
+2*played*1
+2*duration2*1600
